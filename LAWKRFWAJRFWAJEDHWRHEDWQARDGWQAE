@@ -1,0 +1,1126 @@
+local KeyGuardLibrary = loadstring(game:HttpGet("https://cdn.keyguardian.org/library/v1.0.0.lua"))()
+local trueData = "45bdcce7595c45c39115343f5abb0611"
+local falseData = "fb1001bd7c0f4ed484303ccd2b4c8480"
+
+KeyGuardLibrary.Set(
+    {
+        publicToken = "b8d665c6087d447baa515d1fda7fe1bd",
+        privateToken = "f5c34f6b8d5b4eb2b58f70814ba88541",
+        trueData = trueData,
+        falseData = falseData
+    }
+)
+
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+
+-- Create main frame
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Parent = game.CoreGui
+ScreenGui.Name = "KeySystem"
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 400, 0, 300)
+MainFrame.Position = UDim2.new(0.5, -200, 0.5, -150)
+MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+MainFrame.BorderSizePixel = 0
+MainFrame.Parent = ScreenGui
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 8)
+UICorner.Parent = MainFrame
+
+-- Title
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 50)
+Title.Position = UDim2.new(0, 0, 0, 0)
+Title.BackgroundTransparency = 1
+Title.Text = "SoulHub"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 24
+Title.Parent = MainFrame
+
+-- Subtitle
+local Subtitle = Instance.new("TextLabel")
+Subtitle.Size = UDim2.new(1, 0, 0, 30)
+Subtitle.Position = UDim2.new(0, 0, 0, 50)
+Subtitle.BackgroundTransparency = 1
+Subtitle.Text = "Key System"
+Subtitle.TextColor3 = Color3.fromRGB(200, 200, 200)
+Subtitle.Font = Enum.Font.Gotham
+Subtitle.TextSize = 16
+Subtitle.Parent = MainFrame
+
+-- Input box
+local InputBox = Instance.new("TextBox")
+InputBox.Size = UDim2.new(0.8, 0, 0, 40)
+InputBox.Position = UDim2.new(0.1, 0, 0.4, 0)
+InputBox.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+InputBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+InputBox.PlaceholderText = "Enter your key here..."
+InputBox.Font = Enum.Font.Gotham
+InputBox.TextSize = 14
+InputBox.Parent = MainFrame
+InputBox.TextTransparency = 1 -- Metni gizle
+
+local InputCorner = Instance.new("UICorner")
+InputCorner.CornerRadius = UDim.new(0, 4)
+InputCorner.Parent = InputBox
+
+-- Masked Label (gizli gösterim için)
+local MaskLabel = Instance.new("TextLabel")
+MaskLabel.Size = InputBox.Size
+MaskLabel.Position = InputBox.Position
+MaskLabel.BackgroundTransparency = 1
+MaskLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+MaskLabel.Font = Enum.Font.Gotham
+MaskLabel.TextSize = 14
+MaskLabel.TextXAlignment = Enum.TextXAlignment.Left
+MaskLabel.Parent = MainFrame
+MaskLabel.ZIndex = InputBox.ZIndex + 1
+
+-- Her yazıldığında bullet ekle
+InputBox:GetPropertyChangedSignal("Text"):Connect(
+    function()
+        local bulletCount = utf8.len(InputBox.Text) or 0
+        MaskLabel.Text = string.rep("•", bulletCount)
+    end
+)
+
+-- Check button
+local CheckButton = Instance.new("TextButton")
+CheckButton.Size = UDim2.new(0.8, 0, 0, 40)
+CheckButton.Position = UDim2.new(0.1, 0, 0.6, 0)
+CheckButton.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+CheckButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CheckButton.Text = "CHECK KEY"
+CheckButton.Font = Enum.Font.GothamBold
+CheckButton.TextSize = 14
+CheckButton.Parent = MainFrame
+
+local ButtonCorner = Instance.new("UICorner")
+ButtonCorner.CornerRadius = UDim.new(0, 4)
+ButtonCorner.Parent = CheckButton
+
+-- Status label
+local StatusLabel = Instance.new("TextLabel")
+StatusLabel.Size = UDim2.new(0.8, 0, 0, 30)
+StatusLabel.Position = UDim2.new(0.1, 0, 0.8, 0)
+StatusLabel.BackgroundTransparency = 1
+StatusLabel.Text = ""
+StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+StatusLabel.Font = Enum.Font.Gotham
+StatusLabel.TextSize = 14
+StatusLabel.Parent = MainFrame
+
+-- Button hover effect
+CheckButton.MouseEnter:Connect(
+    function()
+        TweenService:Create(CheckButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(0, 140, 255)}):Play()
+    end
+)
+
+CheckButton.MouseLeave:Connect(
+    function()
+        TweenService:Create(CheckButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(0, 120, 255)}):Play()
+    end
+)
+
+-- Key check functionality
+CheckButton.MouseButton1Click:Connect(
+    function()
+        local key = InputBox.Text
+        local response = KeyGuardLibrary.validateDefaultKey(key)
+
+        if response == trueData then
+            StatusLabel.Text = "Key is valid!"
+            StatusLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+            wait(1)
+            MainFrame.Visible = false
+            InputBox.Text = ""
+            MaskLabel.Text = ""
+
+            local repo = "https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/"
+            local Library =
+                loadstring(
+                game:HttpGet(
+                    "https://gist.githubusercontent.com/XecretHub/99efad516c22384145934384d46be915/raw/83c0823b982f0854a6939d3d677aa5307b691a00/Library"
+                )
+            )()
+            local ThemeManager =
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/xReal-166/zaa/refs/heads/main/ThemeManager"))(
+
+            )
+            local SaveManager = loadstring(game:HttpGet(repo .. "addons/SaveManager.lua"))()
+            local Window =
+                Library:CreateWindow(
+                {
+                    Title = "Soul Hub | Locked",
+                    Center = true,
+                    AutoShow = true,
+                    TabPadding = 8,
+                    MenuFadeTime = 0.2
+                }
+            )
+
+            local Tabs = {
+                Roll = Window:AddTab("Roll"),
+                ["UI Settings"] = Window:AddTab("UI Settings")
+            }
+
+            local rStorage = game:GetService("ReplicatedStorage")
+            local TraitConnection
+            local TraitRemote = rStorage.rerolls.traitreroll
+
+            local CollectedWeaponNames = {}
+            for _, WeaponName in ipairs(rStorage.Specs:GetChildren()) do
+                if not WeaponName:IsA("Folder") then
+                    if not table.find(CollectedWeaponNames, WeaponName.Name) then
+                        table.insert(CollectedWeaponNames, WeaponName.Name)
+                    end
+                end
+            end
+            table.sort(CollectedWeaponNames)
+
+            local CollectedTraitNames = {}
+            for _, TraitName in ipairs(rStorage.Specs.Traits:GetChildren()) do
+                if not TraitName:IsA("Folder") then
+                    if not table.find(CollectedTraitNames, TraitName.Name) then
+                        table.insert(CollectedTraitNames, TraitName.Name)
+                    end
+                end
+            end
+            table.sort(CollectedTraitNames)
+
+            local startweapon = false
+            local starttrait = false
+            local startflowbuff = false
+            local startheight = false
+
+            local SelectedWeapon = CollectedWeaponNames[1]
+            local SelectedTrait = CollectedTraitNames[1]
+            local SelectedBuff = "speed"
+            local SelectedHeight = "5'7"
+            local MinimumBuff = 1.4
+            local MaximumBuff = 1.5
+            local WeaponTrait = Tabs.Roll:AddLeftTabbox() -- Add Tabbox on left side
+            local HeightFlowBuff = Tabs.Roll:AddRightTabbox() -- Add Tabbox on left side
+            local DataSlots = Tabs.Roll:AddLeftTabbox() -- Add Tabbox on left side
+            local ColorWebhook = Tabs.Roll:AddRightTabbox() -- Add Tabbox on left side
+
+            local Data = DataSlots:AddTab("Data")
+            local Slots = DataSlots:AddTab("Slots")
+
+            local Weapon = WeaponTrait:AddTab("Weapon Roll")
+            local Trait = WeaponTrait:AddTab("Trait Roll")
+
+            local FlowBuff = HeightFlowBuff:AddTab("Buff Roll")
+            local Height = HeightFlowBuff:AddTab("Height Roll")
+
+            local Color = ColorWebhook:AddTab("Color Roll")
+            local Webhook = ColorWebhook:AddTab("Webhook")
+            local RunService = game:GetService("RunService")
+
+            local Players = game:GetService("Players")
+            local RunService = game:GetService("RunService")
+            local TeleportService = game:GetService("TeleportService")
+
+            local lPlayer = Players.LocalPlayer
+            local placeId = game.PlaceId
+
+            local minimumyenXRD = 3000
+
+            local ColorRemote = rStorage:FindFirstChild("rerolls"):FindFirstChild("aurareroll")
+
+            local firstcheck = false
+            local startednorjcolor = false
+
+            local dupingslot = false
+
+            local conn =
+                RunService.Heartbeat:Connect(
+                function()
+                    if firstcheck then
+                        return
+                    end
+                    if dupingslot then
+                        return
+                    end
+
+                    local char = lPlayer.Character
+                    if char and char:FindFirstChild("RankSystem") and char.RankSystem:FindFirstChild("Yen") then
+                        local yen = char.RankSystem.Yen
+                        if yen:IsA("NumberValue") and yen.Value < minimumyenXRD then
+                            if startednorjcolor then
+                                local args = {
+                                    [1] = 1
+                                }
+                                game:GetService("ReplicatedStorage"):WaitForChild("rerolls"):WaitForChild("Slots"):FireServer(
+                                    unpack(args)
+                                )
+                            else
+                                local args = {
+                                    [1] = "Right",
+                                    [2] = "F\255"
+                                }
+
+                                game:GetService("ReplicatedStorage"):WaitForChild("rerolls"):WaitForChild(
+                                    "KeybindChange"
+                                ):FireServer(unpack(args))
+                                wait(1)
+                                TeleportService:Teleport(placeId, lPlayer)
+                            end
+                        end
+                    end
+                end
+            )
+
+            local R_RGB = 15
+            local G_RGB = 15
+            local B_RGB = 15
+
+            Color:AddSlider(
+                "R",
+                {
+                    Text = "Max R",
+                    Default = 15,
+                    Min = 0,
+                    Max = 15,
+                    Rounding = 1,
+                    Compact = false,
+                    Callback = function(Value)
+                        R_RGB = Value
+                    end
+                }
+            )
+
+            Color:AddSlider(
+                "G",
+                {
+                    Text = "Max G",
+                    Default = 15,
+                    Min = 0,
+                    Max = 15,
+                    Rounding = 1,
+                    Compact = false,
+                    Callback = function(Value)
+                        G_RGB = Value
+                    end
+                }
+            )
+
+            Color:AddSlider(
+                "B",
+                {
+                    Text = "Max B",
+                    Default = 15,
+                    Min = 0,
+                    Max = 15,
+                    Rounding = 1,
+                    Compact = false,
+                    Callback = function(Value)
+                        B_RGB = Value
+                    end
+                }
+            )
+
+            local rejoin = true
+            Color:AddDropdown(
+                "Method",
+                {
+                    Values = {"Rollback (RJ)", "Use Another Slot (NORJ)"},
+                    Default = 1,
+                    Multi = false,
+                    Text = "Method",
+                    Callback = function(Value)
+                        rejoin = not rejoin
+                    end
+                }
+            )
+            local ColorConnection
+
+            -- Karakteri resetleme fonksiyonu
+            local function resetCharacter()
+                if lPlayer.Character then
+                    lPlayer.Character:BreakJoints()
+                end
+            end
+
+            -- Karakterin tamamen yüklenmesini bekleyen fonksiyon
+            local function waitForCharacter()
+                local char = lPlayer.Character or lPlayer.CharacterAdded:Wait()
+                while not char:IsDescendantOf(game) or not char.PrimaryPart do
+                    char = lPlayer.CharacterAdded:Wait()
+                end
+                return char
+            end
+
+            -- Belli bir mesafeden fazla uzaklaşana kadar bekleyen fonksiyon
+            local function waitForSignificantDistance(oldPosition, distanceThreshold)
+                local newPosition
+                repeat
+                    task.wait(0.1) -- Konum değişikliğini kontrol etmek için kısa bekleme
+                    newPosition =
+                        lPlayer.Character and lPlayer.Character.PrimaryPart and lPlayer.Character.PrimaryPart.Position
+                until newPosition and (newPosition - oldPosition).Magnitude > distanceThreshold -- Belirtilen mesafeden fazla değiştiğinde devam et
+            end
+
+            local HttpService = game:GetService("HttpService")
+
+            local webhook = "nothing"
+            local webhooksend = false
+
+            Color:AddToggle(
+                "Toggle",
+                {
+                    Text = "Init Color Roll",
+                    Default = false,
+                    Tooltip = "",
+                    Callback = function(Value)
+                        if Value then
+                            if not rejoin then
+                                local oldPosition = lPlayer.Character.PrimaryPart.Position
+
+                                firstcheck = true
+                                resetCharacter()
+
+                                local character = waitForCharacter()
+
+                                waitForSignificantDistance(oldPosition, 50)
+
+                                wait(15)
+                                firstcheck = false
+                                startednorjcolor = true
+                            end
+                            print("buwa tennim")
+
+                            -- Renk kontrolü, doğrudan başlatılacak
+                            local PlayerColor = {
+                                R = math.floor(game.Players.LocalPlayer.Character.AuraColour.Red.Value * 255),
+                                G = math.floor(game.Players.LocalPlayer.Character.AuraColour.Green.Value * 255),
+                                B = math.floor(game.Players.LocalPlayer.Character.AuraColour.Blue.Value * 255)
+                            }
+
+                            -- Mevcut renk zaten istenilen renge eşitse, işlem yapılmaz
+if PlayerColor.R < R_RGB and PlayerColor.G < G_RGB and PlayerColor.B < B_RGB then
+    print("✅ Color is already correct! (" ..
+        PlayerColor.R .. ", " .. PlayerColor.G .. ", " .. PlayerColor.B .. ")"
+    )
+    return -- Eğer renk zaten istenilen renkten küçükse, işlem yapılmaz
+end
+
+
+                            local function sendWebhook(R, G, B)
+                                if
+                                    webhooksend and webhook ~= "nothing" and
+                                        string.sub(webhook, 1, 33) == "https://discord.com/api/webhooks/"
+                                 then
+                                    local data = {
+                                        embeds = {
+                                            {
+                                                title = "✅ Target color found!",
+                                                description = "**Color:** (" .. R .. ", " .. G .. ", " .. B .. ")",
+                                                color = tonumber(string.format("%02x%02x%02x", R, G, B), 16)
+                                            }
+                                        }
+                                    }
+                                    local jsonData = HttpService:JSONEncode(data)
+
+                                    http_request(
+                                        {
+                                            Url = webhook,
+                                            Method = "POST",
+                                            Headers = {
+                                                ["Content-Type"] = "application/json"
+                                            },
+                                            Body = jsonData
+                                        }
+                                    )
+                                end
+                            end
+
+                            -- Eğer renk uygun değilse, işlemi başlat
+                            ColorConnection =
+                                game.Players.LocalPlayer.Character.AuraColour.Red:GetPropertyChangedSignal("Value"):Connect(
+                                function()
+                                    PlayerColor.R =
+                                        math.floor(game.Players.LocalPlayer.Character.AuraColour.Red.Value * 255)
+                                    PlayerColor.G =
+                                        math.floor(game.Players.LocalPlayer.Character.AuraColour.Green.Value * 255)
+                                    PlayerColor.B =
+                                        math.floor(game.Players.LocalPlayer.Character.AuraColour.Blue.Value * 255)
+
+                                    local function ColorCheck()
+                                        if PlayerColor.R > R_RGB then
+                                            return false
+                                        end
+                                        if PlayerColor.G > G_RGB then
+                                            return false
+                                        end
+                                        if PlayerColor.B > B_RGB then
+                                            return false
+                                        end
+                                        return true
+                                    end
+
+                                    if ColorCheck() then
+                                        print(
+                                            "✅ Target color found! (" ..
+                                                PlayerColor.R .. ", " .. PlayerColor.G .. ", " .. PlayerColor.B .. ")"
+                                        )
+                                        sendWebhook(PlayerColor.R, PlayerColor.G, PlayerColor.B)
+                                    else
+                                        print(
+                                            "(" ..
+                                                PlayerColor.R .. ", " .. PlayerColor.G .. ", " .. PlayerColor.B .. ")"
+                                        )
+                                        ColorRemote:FireServer()
+                                    end
+                                end
+                            )
+
+                            -- İlk renk değişimi başlat
+                            ColorRemote:FireServer()
+                        else
+                            -- Toggle kapandıysa bağlantıyı kes
+                            if ColorConnection then
+                                ColorConnection:Disconnect()
+                                ColorConnection = nil
+                            end
+                        end
+                    end
+                }
+            )
+
+            Webhook:AddInput(
+                "Webhook",
+                {
+                    Default = "",
+                    Numeric = false,
+                    Finished = false,
+                    Text = "Discord Webhook",
+                    Placeholder = "",
+                    Callback = function(Value)
+                        webhook = Value
+                    end
+                }
+            )
+
+            Webhook:AddToggle(
+                "ToggleWebhook",
+                {
+                    Text = "Toggle Webhook",
+                    Default = false,
+                    Tooltip = "",
+                    Callback = function(Value)
+                        webhooksend = not webhooksend
+                    end
+                }
+            )
+
+            local RollBack =
+                Data:AddButton(
+                {
+                    Text = "Rollback",
+                    Func = function()
+                        local args = {
+                            [1] = "Right",
+                            [2] = "F\255"
+                        }
+
+                        game:GetService("ReplicatedStorage"):WaitForChild("rerolls"):WaitForChild("KeybindChange"):FireServer(
+                            unpack(args)
+                        )
+                        wait(1)
+                        local TeleportService = game:GetService("TeleportService")
+                        local Players = game:GetService("Players")
+                        local player = Players.LocalPlayer
+
+                        local placeId = game.PlaceId
+                        local jobId = game.JobId
+
+                        TeleportService:TeleportToPlaceInstance(placeId, jobId, player)
+                    end,
+                    DoubleClick = false
+                }
+            )
+
+            local access =
+                Data:AddButton(
+                {
+                    Text = "Access All Emotes",
+                    Func = function()
+                        game:GetService("ReplicatedStorage").Lockedtines.ExclusiveAdd:FireServer("BarouPack")
+                        game:GetService("ReplicatedStorage").Lockedtines.ExclusiveAdd:FireServer("IsagiPack")
+                        game:GetService("ReplicatedStorage").Lockedtines.ExclusiveAdd:FireServer("ReoPack")
+                        game:GetService("ReplicatedStorage").Lockedtines.ExclusiveAdd:FireServer("LockedtinesEmotepack")
+                    end,
+                    DoubleClick = false
+                }
+            )
+
+            local dailytask =
+                Data:AddButton(
+                {
+                    Text = "Get Daily Tasks",
+                    Func = function()
+                        game:GetService("ReplicatedStorage"):WaitForChild("Tasks"):WaitForChild("RedeemAward"):FireServer(
+                            1
+                        )
+                        game:GetService("ReplicatedStorage"):WaitForChild("Tasks"):WaitForChild("RedeemAward"):FireServer(
+                            2
+                        )
+                        game:GetService("ReplicatedStorage"):WaitForChild("Tasks"):WaitForChild("RedeemAward"):FireServer(
+                            3
+                        )
+                        game:GetService("ReplicatedStorage"):WaitForChild("Tasks"):WaitForChild("RedeemAward"):FireServer(
+                            4
+                        )
+                        game:GetService("ReplicatedStorage"):WaitForChild("Tasks"):WaitForChild("RedeemAward"):FireServer(
+                            5
+                        )
+                    end,
+                    DoubleClick = false
+                }
+            )
+
+            Data:AddSlider(
+                "MinimumYen",
+                {
+                    Text = "Amount of Minimum Yen",
+                    Default = 3000,
+                    Min = 0,
+                    Max = 3000,
+                    Rounding = 1,
+                    Compact = false,
+                    Callback = function(Value)
+                        minimumyenXRD = Value
+                    end
+                }
+            )
+
+            local duplicate =
+                Slots:AddButton(
+                {
+                    Text = "Duplicate Slot",
+                    Func = function()
+                        local player = game.Players.LocalPlayer
+                        local TeleportService = game:GetService("TeleportService")
+                        local placeId = game.PlaceId
+                        local serverId = game.JobId -- Mevcut sunucunun ID'sini al
+
+                        -- Karakteri resetlemek
+                        local function resetCharacter()
+                            if player.Character then
+                                player.Character:BreakJoints()
+                            end
+                        end
+
+                        -- Karakterin tamamen yüklenmesini bekleyen fonksiyon
+                        local function waitForCharacter()
+                            local char = player.Character or player.CharacterAdded:Wait()
+                            while not char:IsDescendantOf(game) or not char.PrimaryPart do
+                                char = player.CharacterAdded:Wait()
+                            end
+                            return char
+                        end
+
+                        -- Belli bir mesafeden fazla uzaklaşana kadar bekleyen fonksiyon
+                        local function waitForSignificantDistance(oldPosition, distanceThreshold)
+                            local newPosition
+                            repeat
+                                task.wait(0.1) -- Konum değişikliğini kontrol etmek için kısa bekleme
+                                newPosition =
+                                    player.Character and player.Character.PrimaryPart and
+                                    player.Character.PrimaryPart.Position
+                            until newPosition and (newPosition - oldPosition).Magnitude > distanceThreshold -- Belirtilen mesafeden fazla değiştiğinde devam et
+                        end
+                        -- Önce mevcut konumu al
+                        local oldCharacter = player.Character
+                        local oldPosition =
+                            oldCharacter and oldCharacter.PrimaryPart and oldCharacter.PrimaryPart.Position or
+                            Vector3.new(0, 0, 0)
+
+                        dupingslot = true
+
+                        -- Önce karakteri resetle
+                        resetCharacter()
+
+                        -- Yeni karakter yüklenene kadar bekle
+                        local character = waitForCharacter()
+
+                        -- En az 50 studioluk bir mesafe değişene kadar bekle
+                        waitForSignificantDistance(oldPosition, 50)
+
+                        wait(0.5)
+                        -- Sunucuya istek gönder
+                        local args = {
+                            [1] = 1
+                        }
+                        game:GetService("ReplicatedStorage"):WaitForChild("rerolls"):WaitForChild("Slots"):FireServer(
+                            unpack(args)
+                        )
+
+                        wait(0.5) -- Sunucu isteğinin işlenmesi için kısa bir gecikme
+
+                        -- Oyuncuyu aynı sunucuya tekrar bağla
+                        TeleportService:TeleportToPlaceInstance(placeId, serverId, player)
+                    end,
+                    DoubleClick = false
+                }
+            )
+
+            local third =
+                Slots:AddButton(
+                {
+                    Text = "Third Slot",
+                    Func = function()
+                        local args = {
+                            [1] = "2"
+                        }
+                        game:GetService("ReplicatedStorage"):WaitForChild("rerolls"):WaitForChild("Slots"):FireServer(
+                            unpack(args)
+                        )
+                    end,
+                    DoubleClick = false
+                }
+            )
+
+            Weapon:AddDropdown(
+                "WeaponDropdown",
+                {
+                    Values = CollectedWeaponNames,
+                    Default = 1,
+                    Multi = false,
+                    Text = "Weapons",
+                    Tooltip = "Select a weapon",
+                    Callback = function(Value)
+                        SelectedWeapon = Value
+                    end
+                }
+            )
+            local WeaponConnection
+            local WeaponRemote = rStorage.rerolls.specreroll
+
+            Weapon:AddToggle(
+                "StartWeapon",
+                {
+                    Text = "Init Weapon Roll",
+                    Default = false,
+                    Tooltip = "",
+                    Callback = function(Value)
+                        startweapon = not startweapon
+                        local Counter = 0
+
+                        if startweapon then
+                            -- SPIN ATMADAN ÖNCE KONTROL
+                            local alreadyHasWeapon = false
+                            for _, child in ipairs(lPlayer.Backpack:GetChildren()) do
+                                if child.Name == SelectedWeapon then
+                                    alreadyHasWeapon = true
+                                    break
+                                end
+                            end
+
+                            if alreadyHasWeapon then
+                                warn("already have.")
+                                WeaponConnection = nil
+                                return
+                            end
+
+                            -- SPIN BAŞLAT
+                            WeaponConnection =
+                                lPlayer.Backpack.ChildAdded:Connect(
+                                function(child)
+                                    warn("Weapon: " .. child.Name)
+
+                                    if child.Name == SelectedWeapon then
+                                        WeaponConnection:Disconnect()
+                                        return
+                                    end
+                                    Counter = Counter + 1
+                                    --AddRerollMoney(100000000000)
+                                    WeaponRemote:FireServer()
+                                end
+                            )
+                            -- İlk roll
+                            WeaponRemote:FireServer()
+                        else
+                            if WeaponConnection then
+                                warn("Weapon reroll disconnected")
+                                WeaponConnection:Disconnect()
+                                WeaponConnection = nil
+                            end
+                        end
+                    end
+                }
+            )
+
+            Trait:AddDropdown(
+                "TraitDropdown",
+                {
+                    Values = CollectedTraitNames,
+                    Default = 1,
+                    Multi = false,
+                    Text = "Traits",
+                    Tooltip = "Select a trait",
+                    Callback = function(Value)
+                        SelectedTrait = Value
+                    end
+                }
+            )
+
+            local ClearTraitFolder = function()
+                for _, Trait in ipairs(lPlayer.Backpack.Trait:GetChildren()) do
+                    spawn(
+                        function()
+                            Trait:Destroy()
+                        end
+                    )
+                end
+            end
+
+            Trait:AddToggle(
+                "StartTrait",
+                {
+                    Text = "Init Trait Roll",
+                    Default = false,
+                    Tooltip = "",
+                    Callback = function(Value)
+                        starttrait = not starttrait
+                        local Counter = 0
+
+                        if starttrait then
+                            -- SPIN ATMADAN ÖNCE KONTROL
+                            local alreadyHasTrait = false
+                            for _, trait in ipairs(lPlayer.Backpack.Trait:GetChildren()) do
+                                if trait.Name == SelectedTrait then
+                                    alreadyHasTrait = true
+                                    break
+                                end
+                            end
+
+                            if alreadyHasTrait then
+                                warn("already have.")
+                                TraitConnection = nil
+                                return
+                            end
+
+                            -- SPIN BAŞLAT
+                            TraitConnection =
+                                lPlayer.Backpack.Trait.ChildAdded:Connect(
+                                function(TraitAdded)
+                                    warn("Trait: " .. TraitAdded.Name)
+
+                                    if TraitAdded.Name == SelectedTrait then
+                                        TraitConnection:Disconnect()
+                                        return
+                                    end
+                                    ClearTraitFolder()
+                                    Counter = Counter + 1
+                                    --AddRerollMoney()
+                                    TraitRemote:FireServer()
+                                end
+                            )
+                            TraitRemote:FireServer()
+                        else
+                            if TraitConnection then
+                                warn("Trait roll disconnected")
+                                TraitConnection:Disconnect()
+                                TraitConnection = nil
+                            end
+                        end
+                    end
+                }
+            )
+
+            local player = game.Players.LocalPlayer
+            local buffFolder = player.Character:FindFirstChild("AuraColour")
+            local currentBuff = buffFolder:FindFirstChild("Buff").Value
+            local rawBuffValue = buffFolder:FindFirstChild("Buff"):GetAttribute("BuffValue")
+            local FlowBuffRemote = rStorage.rerolls.buffreroll
+            local formattedBuffValue
+
+            local left, right = string.match(rawBuffValue, "(%d+)%.(%d+)")
+
+            if left == "0" then
+                local firstDigit = string.sub(right, 1, 1)
+                local remainingDigits = string.sub(right, 2)
+                formattedBuffValue = firstDigit .. "." .. remainingDigits
+            else
+                formattedBuffValue = left .. string.sub(right, 1, 1) .. "." .. string.sub(right, 2)
+            end
+
+            --FlowBuff:AddLabel("Current Buff: " .. currentBuff)
+
+            local anotherformat = string.format("%.2f", formattedBuffValue)
+
+            local FlowType = "speed"
+            FlowBuff:AddDropdown(
+                "FlowBuffDropdown",
+                {
+                    Values = {"speed", "power", "hitbox", "cooldown", "stamina"},
+                    Default = 1,
+                    Multi = false,
+                    Text = "Flow Buffs",
+                    Callback = function(Value)
+                        SelectedBuff = Value
+                    end
+                }
+            )
+
+            FlowBuff:AddSlider(
+                "Percent",
+                {
+                    Text = "Minimum Buff Value",
+                    Default = 1.4,
+                    Min = 0,
+                    Max = 1.4,
+                    Rounding = 1,
+                    Compact = false,
+                    Callback = function(Value)
+                        MinimumBuff = Value
+                    end
+                }
+            )
+
+            FlowBuff:AddLabel("Current Buff: " .. anotherformat .. "% " .. currentBuff)
+
+            local FlowConnection
+            FlowBuff:AddToggle(
+                "StartFlowBuff",
+                {
+                    Text = "Init Buff Roll",
+                    Default = false,
+                    Tooltip = "",
+                    Callback = function(Value)
+                        startflowbuff = not startflowbuff
+
+                        if startflowbuff then
+                            local PBuff = lPlayer.Character.AuraColour.Buff
+                            local Counter = 0
+
+                            if PBuff:GetAttribute("BuffValue") >= MinimumBuff and PBuff.Value == SelectedBuff then
+                                warn("Buff zaten mevcut. İşlem yapmaya gerek yok.")
+                                FlowConnection = nil
+                                return -- Eğer Buff zaten mevcutsa, işlemi sonlandır
+                            end
+
+                            FlowConnection =
+                                PBuff:GetAttributeChangedSignal("BuffValue"):Connect(
+                                function()
+                                    warn("Flow: " .. PBuff.Value)
+                                    warn(PBuff:GetAttribute("BuffValue"))
+                                    if PBuff:GetAttribute("BuffValue") >= MinimumBuff and PBuff.Value == SelectedBuff then
+                                        FlowConnection:Disconnect()
+                                        PostWeb("Flow Reroll", Counter .. " | " .. PBuff:GetAttribute("BuffValue"))
+                                        return
+                                    end
+                                    Counter = Counter + 1
+                                    FlowBuffRemote:FireServer()
+                                end
+                            )
+                            FlowBuffRemote:FireServer()
+                        else
+                            if FlowConnection then
+                                warn("Buff reroll disconnected")
+                                FlowConnection:Disconnect()
+                                FlowConnection = nil
+                            end
+                        end
+                    end
+                }
+            )
+
+            local player = game.Players.LocalPlayer
+            local heightValue = player.Character:FindFirstChild("HeightValue").Value
+
+            local baseInches = (5 * 12) + 3
+            local totalInches = baseInches + (heightValue - 1)
+
+            local feet = math.floor(totalInches / 12)
+            local inches = totalInches % 12
+
+            local formattedHeight = feet .. "'" .. inches
+
+            local heightValues = {}
+
+            for height = 1, 13 do
+                local baseInches = (5 * 12) + 3
+                local totalInches = baseInches + (height - 1)
+
+                local feet = math.floor(totalInches / 12)
+                local inches = totalInches % 12
+
+                local formattedHeight = feet .. "'" .. inches
+                table.insert(heightValues, formattedHeight)
+            end
+
+            Height:AddDropdown(
+                "HeightDropdown",
+                {
+                    Values = heightValues,
+                    Default = 5,
+                    Multi = false,
+                    Text = "Heights",
+                    Tooltip = "Select a height",
+                    Callback = function(Value)
+                        SelectedHeight = Value
+                    end
+                }
+            )
+            Height:AddLabel("Current Height: " .. formattedHeight)
+
+            local HeightConnection
+
+            Height:AddToggle(
+                "StartHeightRoll",
+                {
+                    Text = "Init Height Roll",
+                    Default = false,
+                    Callback = function(Value)
+                        startheight = not startheight
+
+                        if startheight then
+                            local heightObject = lPlayer.Character:FindFirstChild("HeightValue")
+
+                            if heightObject and not HeightConnection then -- heightObject varsa ve daha önce bağlanmamışsa
+                                -- Eğer mevcut yükseklik, istenen yüksekliğe eşitse, işlem yapılmasın
+                                local baseInches = (5 * 12) + 3
+                                local totalInches = baseInches + (heightObject.Value - 1)
+                                local feet = math.floor(totalInches / 12)
+                                local inches = totalInches % 12
+                                local currentLocalHeight = feet .. "'" .. inches
+
+                                -- Already have check: Eğer mevcut yükseklik `SelectedHeight` ile eşleşiyorsa, işlem yapılmasın
+                                if currentLocalHeight == SelectedHeight then
+                                    warn("Already at selected height: " .. currentLocalHeight)
+                                    return -- Eğer yükseklik zaten seçilen yükseklikse, işlem yapılmaz
+                                end
+
+                                -- Yükseklik değişirse, işlemi başlat
+                                HeightConnection =
+                                    heightObject:GetPropertyChangedSignal("Value"):Connect(
+                                    function()
+                                        local baseInches = (5 * 12) + 3
+                                        local totalInches = baseInches + (heightObject.Value - 1)
+
+                                        local feet = math.floor(totalInches / 12)
+                                        local inches = totalInches % 12
+
+                                        local currentLocalHeight = feet .. "'" .. inches
+                                        warn("height: ", currentLocalHeight)
+
+                                        if currentLocalHeight == SelectedHeight then
+                                            warn("got !")
+                                            return
+                                        end
+
+                                        game:GetService("ReplicatedStorage"):WaitForChild("rerolls"):WaitForChild(
+                                            "heightreroll"
+                                        ):FireServer()
+                                    end
+                                )
+
+                                -- İlk başlatma işlemi
+                                game:GetService("ReplicatedStorage"):WaitForChild("rerolls"):WaitForChild(
+                                    "heightreroll"
+                                ):FireServer()
+                            end
+                        else
+                            if HeightConnection then
+                                HeightConnection:Disconnect()
+                                HeightConnection = nil
+                            end
+                            warn("heightconnection disabled")
+                        end
+                    end
+                }
+            )
+
+            Library:OnUnload(
+                function()
+                    print("Unloaded!")
+                    Library.Unloaded = true
+                end
+            )
+
+            local MenuGroup = Tabs["UI Settings"]:AddLeftGroupbox("Menu")
+
+            MenuGroup:AddButton(
+                "Unload",
+                function()
+                    Library:Unload()
+                end
+            )
+            MenuGroup:AddLabel("Menu bind"):AddKeyPicker(
+                "MenuKeybind",
+                {Default = "End", NoUI = true, Text = "Menu keybind"}
+            )
+
+            Library.ToggleKeybind = Options.MenuKeybind
+
+            ThemeManager:SetLibrary(Library)
+            SaveManager:SetLibrary(Library)
+
+            SaveManager:IgnoreThemeSettings()
+
+            SaveManager:SetIgnoreIndexes({"MenuKeybind"})
+
+            ThemeManager:SetFolder("SoulRoll")
+            SaveManager:SetFolder("SoulRoll/specific-game")
+
+            SaveManager:BuildConfigSection(Tabs["UI Settings"])
+
+            ThemeManager:ApplyToTab(Tabs["UI Settings"])
+
+            SaveManager:LoadAutoloadConfig()
+        else
+            StatusLabel.Text = "Invalid key!"
+            StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+        end
+    end
+)
+
+-- Make frame draggable
+local dragging
+local dragInput
+local dragStart
+local startPos
+
+local function update(input)
+    local delta = input.Position - dragStart
+    MainFrame.Position =
+        UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+MainFrame.InputBegan:Connect(
+    function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = MainFrame.Position
+
+            input.Changed:Connect(
+                function()
+                    if input.UserInputState == Enum.UserInputState.End then
+                        dragging = false
+                    end
+                end
+            )
+        end
+    end
+)
+
+UserInputService.InputChanged:Connect(
+    function(input)
+        if
+            dragging and
+                (input.UserInputType == Enum.UserInputType.MouseMovement or
+                    input.UserInputType == Enum.UserInputType.Touch)
+         then
+            update(input)
+        end
+    end
+)
